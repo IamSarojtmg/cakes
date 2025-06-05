@@ -16,7 +16,6 @@
 /* ------------------------------------------------------------------------------------------- */
 
 .cakelist-cont{
-  /* border: solid; */
   display: flex;
   flex-direction: column;
 }
@@ -37,3 +36,14 @@ object-position: center;
 width: 50%;
 height: 100%;
 }
+
+@media (max-width: 600px) {
+  .cakelist-cont{
+    border: solid red;
+    display: flex;
+    flex-direction: column;
+  }
+}
+  
+
+
