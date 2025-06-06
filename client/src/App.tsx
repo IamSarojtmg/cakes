@@ -1,14 +1,14 @@
-import './App.css'
-import CakeList from './components/cakeList'
+import "./App.css";
+import CakeList from "./components/cakeList";
 
 function App() {
-
-
   return (
     <>
-<CakeList/>
+
+
+      <CakeList />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
