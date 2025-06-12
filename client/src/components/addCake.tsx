@@ -16,7 +16,15 @@ interface FormData {
   name: string;
   imageUrl: string;
   comment: string;
-  yumFactor: number | null; // null because Rating can be null initially
+  yumFactor: number | null;
+}
+
+interface FormErrors {
+  //error
+  name?: string;
+  imageUrl?: string;
+  comment?: string;
+  yumFactor?: string; //saving error message not the value of yumfactor
 }
 
 function AddCake() {
@@ -30,6 +38,8 @@ function AddCake() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [successMsg, setSuccessMsg] = useState<boolean>(false);
+  const [formErr, setFormErr] = useState<FormErrors>({}); //ERROR
 
   const handleBack = (): void => {
     navigate(-1);
@@ -51,15 +61,62 @@ function AddCake() {
     }));
   };
 
+  const formLogic = (data: FormData): FormErrors => {
+    //function that has the logic to give out the right error message to the right label
+    //ERROR FUNC
+    const errors: FormErrors = {};
+
+    //  if(data.name === "already named cake"){
+    //   fill logic
+    //  }
+
+    if (!data.name) {
+      errors.name = "Name: Required";
+    }
+    if (!data.imageUrl) {
+      errors.imageUrl = "URL required";
+    }
+    if (!data.comment) {
+      errors.comment = "Comment required";
+    }
+    if (data.comment.length > 0 && data.comment.length < 5) {
+      errors.comment = "Minimum length is 5 characters";
+    } else if (data.comment.length > 200) {
+      errors.comment = "Maximum length is 200 characters";
+    }
+    if (!data.yumFactor) {
+      errors.yumFactor = "Rating Required";
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-    setIsSubmitting(true);
 
-    console.log("Form data to submit:", formData);
+    const validationErrors = formLogic(formData); //need this to pass the current saved variables in the formdata which only populates if anything added to the form box(through onchange also know as controlled component)
+    console.log(formErr);
+
+    setFormErr(validationErrors);
+    console.log(formErr);
+
+    // console.log(validationErrors)
+
+    if (Object.keys(validationErrors).length > 0) {
+      return; // STOP HERE if validation fails
+    }
+
+    // console.log("Form data to submit:", formData);
+    setIsSubmitting(true);
+    // setSuccessMsg(true)
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     setIsSubmitting(false);
+    setSuccessMsg(true);
+    setTimeout(() => {
+      navigate("/");
+    }, 2000);
   };
 
   return (
@@ -86,7 +143,8 @@ function AddCake() {
             fullWidth
             variant="outlined"
             margin="normal"
-            required
+            error={!!formErr.name}
+            helperText={formErr.name}
           />
 
           <TextField
@@ -97,7 +155,8 @@ function AddCake() {
             fullWidth
             variant="outlined"
             margin="normal"
-            required
+            error={!!formErr.imageUrl}
+            helperText={formErr.imageUrl}
           />
 
           <TextField
@@ -110,11 +169,16 @@ function AddCake() {
             rows={4}
             variant="outlined"
             margin="normal"
-            required
+            error={!!formErr.comment}
+            helperText={formErr.comment}
           />
 
           <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 1 }}>
-            <Typography component="legend" sx={{ mr: 2 }}>
+            <Typography
+              component="legend"
+              sx={{ mr: 2 }}
+              color={!!formErr.yumFactor ? "error" : "black"}
+            >
               Yum Factor:
             </Typography>
             <Rating
@@ -123,8 +187,12 @@ function AddCake() {
               onChange={handleYumFactorChange}
               precision={1}
               size="large"
-              required
             />
+            {formErr.yumFactor && (
+              <Typography color="error" sx={{ ml: 1 }}>
+                {formErr.yumFactor}
+              </Typography>
+            )}
           </Box>
 
           <Button
@@ -137,6 +205,7 @@ function AddCake() {
           >
             {isSubmitting ? "Submitting..." : "Submit Cake"}
           </Button>
+          <div>{successMsg ? "Cake added successfully" : ""}</div>
         </form>
       </Paper>
     </Container>
