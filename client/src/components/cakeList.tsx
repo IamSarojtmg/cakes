@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {Link} from "react-router-dom"
 import {
   Box,
   Button,
@@ -44,14 +45,16 @@ function CakeList() {
         >
         <Typography variant="h4">View all cakes</Typography>
         <Box display="flex" gap={2}>
+          <Link to={"/add-cake"}>
           <Button variant="contained">Add cake</Button>
+          </Link>
           <Button variant="outlined">Favourites cakes</Button>
         </Box>
       </Box>
 
       <Grid container direction="column" spacing={3}>
         {cakes.map((cake, i) => (
-          <Grid item key={i}>
+          <Grid key={i}>
             <Card sx={{ display: 'flex', flexDirection: 'row', border:"solid red"}}>
               <CardMedia
                 component="img"
