@@ -54,7 +54,7 @@ function CakeList() {
 
       <Grid container direction="column" spacing={3}>
         {cakes.map((cake, i) => (
-          <Grid item key={i}>
+          <Grid key={i}>
             <Card sx={{ display: 'flex', flexDirection: 'row', border:"solid red"}}>
               <CardMedia
                 component="img"

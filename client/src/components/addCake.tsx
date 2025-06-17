@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import {
   Typography,
   IconButton,
@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface FormData {
   name: string;
@@ -28,6 +29,8 @@ interface FormErrors {
 }
 
 function AddCake() {
+  // console.log('inside addcake');
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormData>({
@@ -46,6 +49,7 @@ function AddCake() {
   };
 
   const handleInputChange = (event) => {
+    // console.log('inside handle input');
     const { name, value } = event.target;
 
     setFormData((prevData) => ({
@@ -55,6 +59,7 @@ function AddCake() {
   };
 
   const handleYumFactorChange = (event, newValue: number | null) => {
+    // console.log('inside yumfactor');
     setFormData((prevData) => ({
       ...prevData,
       yumFactor: newValue,
@@ -62,6 +67,7 @@ function AddCake() {
   };
 
   const formLogic = (data: FormData): FormErrors => {
+    // console.log('inside formlogic');
     //function that has the logic to give out the right error message to the right label
     //ERROR FUNC
     const errors: FormErrors = {};
@@ -93,30 +99,37 @@ function AddCake() {
 
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-
+    // console.log('inside handlesubmit');
     const validationErrors = formLogic(formData); //need this to pass the current saved variables in the formdata which only populates if anything added to the form box(through onchange also know as controlled component)
-    console.log(formErr);
 
     setFormErr(validationErrors);
-    console.log(formErr);
 
     // console.log(validationErrors)
 
     if (Object.keys(validationErrors).length > 0) {
+      setSuccessMsg(false);
       return; // STOP HERE if validation fails
     }
 
-    // console.log("Form data to submit:", formData);
     setIsSubmitting(true);
-    // setSuccessMsg(true)
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/cakes",
+        formData
+      );
+      console.log(response);
+      setSuccessMsg(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log("finally");
+      setIsSubmitting(false);
+    }
 
-    setIsSubmitting(false);
-    setSuccessMsg(true);
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
+    //     setTimeout(() => {
+    // setIsSubmitting(true);
+    // }, 2000);
   };
 
   return (
