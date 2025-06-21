@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
+import "dotenv/config";
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT
+const MONGO_URI = process.env.MONGO_URI
 
 interface cakeData {
   name: string;
@@ -34,3 +37,6 @@ app.post("/cakes", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Well done! its runing at http://localhost:${PORT}`);
 });
+
+mongoose.connect(MONGO_URI).then(()=>{console.log("mongoDB connected");
+}).catch((err)=> console.error("MongoDB connection error =", err))

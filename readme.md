@@ -54,7 +54,7 @@ For a detailed view of the task breakdown, progress tracking, and user story man
 * Vite: Preferred for its fast development server and minimal configuration for React/TypeScript, including PWA capabilities.
 * npm: The standard package manager for Node.js, offering robust dependency management and broad community support.
 
-## Resiliency & Error Handling (Briefly explain your approach).
+## Resiliency & Error Handling
 
 Project Structure (High-level overview of main folders and their purpose).
 
