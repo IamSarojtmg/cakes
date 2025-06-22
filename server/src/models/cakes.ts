@@ -1,10 +1,19 @@
 import mongoose from "mongoose";
 
-const cakesSchema = new mongoose.Schema(
+export interface CakeInterface extends mongoose.Document {
+    name: string;
+    imageUrl : string;
+    comment: string;
+    yumFactor: number
+
+}
+
+const cakesSchema = new mongoose.Schema<CakeInterface>(
     {
     name:{
         type:String,
-        required: true
+        required: true,
+        unique: true
     },
     imageUrl:{
         type:String,
@@ -12,15 +21,23 @@ const cakesSchema = new mongoose.Schema(
     },
     comment:{
         type:String,
-        required:true
+        required:true,
+        minlength:5,
+        maxlength:200
     },
     yumFactor:{
         type:Number,
-        required:true
+        required:true,
+        min:1,
+        max:5
     }
-})
+},
+{
+    timestamps:true
+}
+)
 
-const CakesModel = mongoose.model('Cakes', cakesSchema)
+const CakesModel = mongoose.model<CakeInterface>('Cakes', cakesSchema)
 export default CakesModel
 
 
