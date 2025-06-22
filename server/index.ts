@@ -1,36 +1,28 @@
-import express from "express";
-import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
-const app = express();
-const PORT = 3001;
+import connectDB from "./src/config/db";
+import app from "./src/app";
 
-interface cakeData {
-  name: string;
-  imageUrl: string;
-  comment: string;
-  yumFactor: null | number;
+const PORT = process.env.PORT;
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error("Cannot find Mongo_URI");
+  process.exit(1);
 }
 
-let cakes: cakeData[] = [{
-  name: "velvet",
-  imageUrl: "just a string",
-  comment: "tasty cake",
-  yumFactor: 3,
-}];
+const startServer = async () => {
+  try {
+    await connectDB(MONGO_URI);
 
-app.use(cors());
-app.use(express.json());
+    app.listen(PORT, () => {
+      console.log(`BE running on http://localhost:${PORT}`);
+    });
+  } catch (error: unknown) {
+    console.error("Failed to start backend server:", error);
+    process.exit(1);
+  }
+};
 
-app.get("/cakes", (req, res) => {
-  console.log('get request');
-  res.json(cakes);
-});
-
-app.post("/cakes", (req, res) => {
-  console.log(req.body,'post request');
-  res.status(201).json(req.body)
-});
-
-app.listen(PORT, () => {
-  console.log(`Well done! its runing at http://localhost:${PORT}`);
-});
+startServer();
