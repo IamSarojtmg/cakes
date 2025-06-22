@@ -1,42 +1,28 @@
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
-import "dotenv/config";
+import dotenv from 'dotenv';
+dotenv.config(); 
 
-const app = express();
+import connectDB from './src/config/db'; 
+import app from './src/app';             
+
 const PORT = process.env.PORT
-const MONGO_URI = process.env.MONGO_URI
+const MONGO_URI = process.env.MONGO_URI;
 
-interface cakeData {
-  name: string;
-  imageUrl: string;
-  comment: string;
-  yumFactor: null | number;
+if (!MONGO_URI) {
+  console.error('Cannot find Mongo_URI');
+  process.exit(1);
 }
 
-let cakes: cakeData[] = [{
-  name: "velvet",
-  imageUrl: "just a string",
-  comment: "tasty cake",
-  yumFactor: 3,
-}];
+const startServer = async () => {
+  try {
+    await connectDB(MONGO_URI); 
+    
+    app.listen(PORT, () => {
+      console.log(`BE running on http://localhost:${PORT}`);
+    });
+  } catch (error: unknown) {
+    console.error("Failed to start backend server:", error);
+    process.exit(1);
+  }
+};
 
-app.use(cors());
-app.use(express.json());
-
-app.get("/cakes", (req, res) => {
-  console.log('get request');
-  res.json(cakes);
-});
-
-app.post("/cakes", (req, res) => {
-  console.log(req.body,'post request');
-  res.status(201).json(req.body)
-});
-
-app.listen(PORT, () => {
-  console.log(`Well done! its runing at http://localhost:${PORT}`);
-});
-
-mongoose.connect(MONGO_URI).then(()=>{console.log("mongoDB connected");
-}).catch((err)=> console.error("MongoDB connection error =", err))
+startServer();
