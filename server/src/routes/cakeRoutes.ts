@@ -1,9 +1,9 @@
-import { Router } from "express";
-import { getAllCakes, postCake } from "../controllers/cakesController";
+const express = require('express')
+const cakeController = require('../controllers/cakesController')
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAllCakes);
-router.post("/", postCake);
+router.get("/", cakeController.getAllCakes);
+router.post("/", cakeController.postCake);
 
-export default router;
+module.exports = router;

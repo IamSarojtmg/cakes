@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"; 
 
 export interface CakeInterface extends mongoose.Document {
   name: string;
@@ -37,4 +37,4 @@ const cakesSchema = new mongoose.Schema<CakeInterface>(
 );
 
 const CakesModel = mongoose.model<CakeInterface>("Cakes", cakesSchema);
-export default CakesModel;
+module.exports = CakesModel;

@@ -1,8 +1,10 @@
-import dotenv from "dotenv";
+
+export{}
+const dotenv = require('dotenv')
 dotenv.config();
 
-import connectDB from "./src/config/db";
-import app from "./src/app";
+const connectToDB = require('./src/config/db')
+const app = require('./src/app')
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
@@ -14,7 +16,7 @@ if (!MONGO_URI) {
 
 const startServer = async () => {
   try {
-    await connectDB(MONGO_URI);
+    await connectToDB(MONGO_URI);
 
     app.listen(PORT, () => {
       console.log(`BE running on http://localhost:${PORT}`);
