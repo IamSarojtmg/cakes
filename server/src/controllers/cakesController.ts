@@ -1,7 +1,7 @@
 const CakesModel = require("../models/cakes");
 
 const getAllCakes = async (req: any, res: any) => {
-  const cakes = await CakesModel.find();
+  const cakes = await CakesModel.find(); 
   res.status(200).json({ cakes });
 };
 

@@ -2,7 +2,33 @@ const app = require("../../../src/app");
 const request = require("supertest");
 const Cake = require("../../models/cakes");
 
-describe("POST cakes", () => {
+describe("GET /cakes", () => {
+  it("Return all the cakes that are stored in the database", async () => {
+    const getReqCake = {
+      name: "Get req cake",
+      imageUrl: "URL of the cake",
+      comment: "Tasty and great looking cake",
+      yumFactor: 5,
+    };
+
+    await request(app).post("/cakes").send(getReqCake);
+    const getRes = await request(app).get("/cakes");
+
+    expect(getRes.statusCode).toBe(200);
+    expect(getRes.body).toHaveProperty("cakes");
+
+    const foundCake = getRes.body.cakes.find(
+      (cake: any) => cake.name === getReqCake.name
+    );
+    expect(foundCake).toBeDefined();
+    expect(foundCake.name).toBe(getReqCake.name);
+    expect(foundCake.imageUrl).toBe(getReqCake.imageUrl);
+    expect(foundCake.comment).toBe(getReqCake.comment);
+    expect(foundCake.yumFactor).toBe(getReqCake.yumFactor);
+  });
+});
+
+describe("POST /cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
