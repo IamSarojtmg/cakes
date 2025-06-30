@@ -56,16 +56,16 @@ For a detailed view of the task breakdown, progress tracking, and user story man
 
 ## Resiliency & Error Handling
 
-Project Structure (High-level overview of main folders and their purpose).
+Project Structure 
 
-API Endpoints (Brief overview of your REST API: GET /cakes, POST /cakes etc., and the Cake payload structure).
+API Endpoints 
 
-Validation Rules (List the specific validation criteria for input fields).
+Validation Rules 
 
 
-Known Issues (Yes, keep this! Shows self-awareness and honesty).
+Known Issues 
 
-Future Enhancements (Shows foresight and desire to improve).
+Future Enhancements 
 
-License & Versioning (Standard practice).
+License & Versioning 
 
