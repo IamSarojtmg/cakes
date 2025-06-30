@@ -1,4 +1,4 @@
-const CakesModel = require('../models/cakes')
+const CakesModel = require("../models/cakes");
 
 const getAllCakes = async (req: any, res: any) => {
   const cakes = await CakesModel.find();
@@ -8,11 +8,27 @@ const getAllCakes = async (req: any, res: any) => {
 const postCake = async (req: any, res: any) => {
   try {
     const newCake = await CakesModel.create(req.body);
-    res.status(200).json(newCake);
+    res.status(201).json(newCake);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
+    if (error.name === "ValidationError") {
+      const validationErrorDetail = (error as any).errors;
+      let arrOfMsg: string[] = [];
+      if (validationErrorDetail.imageUrl) {
+        arrOfMsg.push(validationErrorDetail.imageUrl.message);
+      }
+      if (validationErrorDetail.name) {
+        arrOfMsg.push(validationErrorDetail.name.message);
+      }
+      if (validationErrorDetail.comment) {
+        arrOfMsg.push(validationErrorDetail.comment.message);
+      }
+      if (validationErrorDetail.yumFactor) {
+        arrOfMsg.push(validationErrorDetail.yumFactor.message);
+      }
+
+      res.status(400).json(arrOfMsg[0]);
+    }
   }
 };
 
-module.exports = {getAllCakes, postCake}
+module.exports = { getAllCakes, postCake };

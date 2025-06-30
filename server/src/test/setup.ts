@@ -15,13 +15,10 @@ beforeAll(async () => {
   console.log("\n--- Connected to Test MongoDB ---");
 });
 
-//clean up after each test.
 afterEach(async () => {
-  // Deletes all documents from the 'cakes' collection
   await CakesModel.deleteMany({});
 });
 
-// afterAll - disconnect from database
 afterAll(async () => {
   await mongoose.connection.close();
   console.log("--- Disconnected from Test MongoDB ---");

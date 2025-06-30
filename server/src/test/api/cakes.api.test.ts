@@ -1,7 +1,8 @@
 const app = require("../../../src/app");
-const supertest = require("supertest");
+const request = require("supertest");
+const Cake = require("../../models/cakes");
 
-describe("POST cakse", () => {
+describe("POST cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
@@ -11,6 +12,32 @@ describe("POST cakse", () => {
       yumFactor: 3,
     };
 
-    const res = await supertest(app).post("/cakes").send(newCakeData);
+    const res = await request(app).post("/cakes").send(newCakeData);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty("imageUrl");
+    expect(res.body.name).toEqual(newCakeData.name);
+    expect(typeof res.body.yumFactor).toBe("number");
+
+    const cakeInMongoDB = await Cake.findById(res.body._id);
+
+    expect(cakeInMongoDB).toBeDefined();
+    expect(cakeInMongoDB.name).toBe(newCakeData.name);
   });
+
+  it("should return 400 Bad Request if name is missing", async () => {
+    const invalidCakeData = {
+      //name missing
+      imageUrl: "http://invalid.com/img.jpg",
+      comment: "Valid length comment.",
+      yumFactor: 3,
+    };
+
+    const res = await request(app).post("/cakes").send(invalidCakeData);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual("Please enter cake name"); // Expect an error message
+  });
+
+  //POST REQUEST IF USER DOES NOT ENTER NAME + IMAGEuRL, OR INVALID COMMENT LENGTH ...
 });
