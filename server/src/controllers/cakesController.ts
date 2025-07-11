@@ -1,8 +1,27 @@
 const CakesModel = require("../models/cakes");
 
 const getAllCakes = async (req: any, res: any) => {
-  const cakes = await CakesModel.find(); 
+  const cakes = await CakesModel.find();
   res.status(200).json({ cakes });
+  //WRITE ERROR MESSAGE LATER
+};
+
+const getCakeById = async (req: any, res: any) => {
+  const { _id } = req.params;
+  try {
+    const cake = await CakesModel.findById(_id);
+
+    if (!cake) {
+      res.status(400).json({
+        status: "Fail",
+        message: "Cake not found with that ID",
+      });
+    }
+
+    res.status(200).json(cake);
+  } catch (error) {
+    //WRITE ERROR MESSAGE LATER
+  }
 };
 
 const postCake = async (req: any, res: any) => {
@@ -31,4 +50,4 @@ const postCake = async (req: any, res: any) => {
   }
 };
 
-module.exports = { getAllCakes, postCake };
+module.exports = { getAllCakes, postCake, getCakeById };

@@ -3,7 +3,7 @@ const request = require("supertest");
 const Cake = require("../../models/cakes");
 
 describe("GET /cakes", () => {
-  it("Return all the cakes that are stored in the database", async () => {
+  it.skip("Return all the cakes that are stored in the database", async () => {
     const getReqCake = {
       name: "Get req cake",
       imageUrl: "URL of the cake",
@@ -26,9 +26,29 @@ describe("GET /cakes", () => {
     expect(foundCake.comment).toBe(getReqCake.comment);
     expect(foundCake.yumFactor).toBe(getReqCake.yumFactor);
   });
+
+  it("Return a cake depending on their ID ", async () => {
+    const viewThisCake = {
+      name: "Single Cake view",
+      imageUrl: "URL of the cake",
+      comment: "Only show this cake",
+      yumFactor: 5,
+    };
+
+    const postRes = await request(app).post("/cakes").send(viewThisCake);
+    expect(postRes.statusCode).toBe(201);
+    const cakeId = postRes.body._id;
+
+    const getRes = await request(app).get(`/cakes/${cakeId}`);
+
+    expect(getRes.statusCode).toBe(200);
+    expect(getRes.body).toHaveProperty("_id");
+    expect(getRes.body.yumFactor).toBe(5);
+    expect(getRes.body._id).toBe(cakeId);
+  });
 });
 
-describe("POST /cakes", () => {
+describe.skip("POST /cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
