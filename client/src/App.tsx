@@ -4,8 +4,6 @@ import CakeList from "./components/cakeList";
 function App() {
   return (
     <>
-
-
       <CakeList />
     </>
   );
