@@ -44,6 +44,7 @@ function CakeList() {
   useEffect(() => {
     getCakes();
   }, []);
+ 
 
   return (
     <Container>
@@ -65,6 +66,7 @@ function CakeList() {
 
       <Grid container justifyContent="center" spacing={3}>
         {getCakesApi.map((cake) => (
+          <Link to={`/cakes/${cake._id}`}>
           <Grid key={cake._id} width="300px">
             <Card elevation={3}>
               <CardActionArea>
@@ -86,6 +88,7 @@ function CakeList() {
               </CardActions>
             </Card>
           </Grid>
+          </Link>
         ))}
       </Grid>
     </Container>
