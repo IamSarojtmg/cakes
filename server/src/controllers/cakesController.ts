@@ -70,4 +70,28 @@ const postCake = async (req: any, res: any) => {
   }
 };
 
-module.exports = { getAllCakes, postCake, getCakeById, updateCakeById };
+const deleteCakeById = async (req: any, res: any) => {
+  const { _id } = req.params;
+  try {
+    const cakeToDelete = await CakesModel.findById(_id);
+    if (!cakeToDelete) {
+      res.status(404).json({
+        status: "Fail",
+        message: "Cake not found with that ID",
+      });
+    }
+
+    await CakesModel.findByIdAndDelete(_id);
+    res.status(201).json({ message: "Cake has been deleted" });
+  } catch (error) {
+        //WRITE ERROR MESSAGE LATER
+  }
+};
+
+module.exports = {
+  getAllCakes,
+  postCake,
+  getCakeById,
+  updateCakeById,
+  deleteCakeById,
+};
