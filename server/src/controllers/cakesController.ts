@@ -12,13 +12,33 @@ const getCakeById = async (req: any, res: any) => {
     const cake = await CakesModel.findById(_id);
 
     if (!cake) {
-      res.status(400).json({
+      res.status(404).json({
         status: "Fail",
         message: "Cake not found with that ID",
       });
     }
 
     res.status(200).json(cake);
+  } catch (error) {
+    //WRITE ERROR MESSAGE LATER
+  }
+};
+
+const updateCakeById = async (req: any, res: any) => {
+  const { _id } = req.params;
+  try {
+    const cakeToEdit = await CakesModel.findById(_id);
+    if (!cakeToEdit) {
+      res.status(404).json({
+        status: "Fail",
+        message: "Cake not found with that ID",
+      });
+    }
+
+    const updateCake = await CakesModel.findByIdAndUpdate(_id, req.body, {
+      new: true,
+    });
+    res.status(200).json(updateCake);
   } catch (error) {
     //WRITE ERROR MESSAGE LATER
   }
@@ -50,4 +70,4 @@ const postCake = async (req: any, res: any) => {
   }
 };
 
-module.exports = { getAllCakes, postCake, getCakeById };
+module.exports = { getAllCakes, postCake, getCakeById, updateCakeById };
