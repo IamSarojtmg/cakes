@@ -15,19 +15,8 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 import axios from "axios";
-
-interface Cake {
-  _id: string;
-  name: string;
-  imageUrl: string;
-  comment: string;
-  yumFactor: number;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+import { Cake} from '../types/types'
 
 function CakeList() {
   const [getCakesApi, setGetCakesApi] = useState<Cake[]>([]);

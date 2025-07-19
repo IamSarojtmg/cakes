@@ -12,21 +12,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-interface FormData {
-  name: string;
-  imageUrl: string;
-  comment: string;
-  yumFactor: number | null;
-}
-
-interface FormErrors {
-  //error
-  name?: string;
-  imageUrl?: string;
-  comment?: string;
-  yumFactor?: string; //saving error message not the value of yumfactor
-}
+import {FormData, FormErrors} from '../types/types'
 
 function AddCake() {
   // console.log('inside addcake');
@@ -44,11 +30,11 @@ function AddCake() {
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
   const [formErr, setFormErr] = useState<FormErrors>({}); //ERROR
 
-  const handleBack = (): void => {
+  const handleBack = (): void => {//this
     navigate(-1);
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event) => {//this
     // console.log('inside handle input');
     const { name, value } = event.target;
 
@@ -57,16 +43,17 @@ function AddCake() {
       [name]: value,
     }));
   };
-
-  const handleYumFactorChange = (event, newValue: number | null) => {
+  
+  const handleYumFactorChange = (event, newValue: number | null) => {//this
     // console.log('inside yumfactor');
     setFormData((prevData) => ({
       ...prevData,
       yumFactor: newValue,
     }));
   };
+  //add page loading 
 
-  const formLogic = (data: FormData): FormErrors => {
+  const formLogic = (data: FormData): FormErrors => {//this
     // console.log('inside formlogic');
     //function that has the logic to give out the right error message to the right label
     //ERROR FUNC

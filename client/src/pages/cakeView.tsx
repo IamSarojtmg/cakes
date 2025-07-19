@@ -12,17 +12,9 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
-interface Cake {
-  _id: string;
-  name: string;
-  imageUrl: string;
-  comment: string;
-  yumFactor: number;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+import EditIcon from '@mui/icons-material/Edit';
+import { Link } from "react-router-dom";
+import {Cake} from '../types/types'
 
 function IndividualCake() {
   const navigate = useNavigate();
@@ -111,6 +103,9 @@ function IndividualCake() {
               <Typography variant="body2">
                 {"⭐".repeat(getCakeApi.yumFactor)}
               </Typography>
+              <Link to={`/cakes/edit/${cakeid}`}>
+              <IconButton><EditIcon/></IconButton>
+              </Link>
             </CardContent>
           </Card>
         </Box>
