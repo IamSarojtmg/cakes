@@ -12,7 +12,9 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {FormData, FormErrors} from '../types/types'
+import { FormData, FormErrors } from "../types/types";
+import { formLogic } from "../components/formError";
+
 
 function AddCake() {
   // console.log('inside addcake');
@@ -30,59 +32,24 @@ function AddCake() {
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
   const [formErr, setFormErr] = useState<FormErrors>({}); //ERROR
 
-  const handleBack = (): void => {//this
-    navigate(-1);
-  };
-
-  const handleInputChange = (event) => {//this
-    // console.log('inside handle input');
-    const { name, value } = event.target;
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
-  
-  const handleYumFactorChange = (event, newValue: number | null) => {//this
+
+  const handleYumFactorChange = (event, newValue: number | null) => {
+    //this
     // console.log('inside yumfactor');
     setFormData((prevData) => ({
       ...prevData,
       yumFactor: newValue,
     }));
   };
-  //add page loading 
+  //add page loading
 
-  const formLogic = (data: FormData): FormErrors => {//this
-    // console.log('inside formlogic');
-    //function that has the logic to give out the right error message to the right label
-    //ERROR FUNC
-    const errors: FormErrors = {};
-
-    //  if(data.name === "already named cake"){
-    //   fill logic
-    //  }
-
-    if (!data.name) {
-      errors.name = "Name: Required";
-    }
-    if (!data.imageUrl) {
-      errors.imageUrl = "URL required";
-    }
-    if (!data.comment) {
-      errors.comment = "Comment required";
-    }
-    if (data.comment.length > 0 && data.comment.length < 5) {
-      errors.comment = "Minimum length is 5 characters";
-    } else if (data.comment.length > 200) {
-      errors.comment = "Maximum length is 200 characters";
-    }
-    if (!data.yumFactor) {
-      errors.yumFactor = "Rating Required";
-    }
-
-    return errors;
-  };
 
   const handleSubmit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
@@ -122,7 +89,10 @@ function AddCake() {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <IconButton onClick={handleBack} sx={{ color: "primary.main", mr: 1 }}>
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{ color: "primary.main", mr: 1 }}
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4" component="h1">

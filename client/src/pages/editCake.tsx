@@ -20,8 +20,11 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { formLogic } from "../components/formError";
+
 
 function EditCake() {
+  const navigate = useNavigate();
   const { cakeid } = useParams<string>();
   const [getCake, setGetCake] = useState<Cake>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -34,11 +37,6 @@ function EditCake() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
   const [formErr, setFormErr] = useState<FormErrors>({}); //ERROR
-
-  const navigate = useNavigate();
-  const handleBack = (): void => {
-    navigate(-1);
-  };
 
   const cakeDetails = async () => {
     try {
@@ -63,9 +61,7 @@ function EditCake() {
     cakeDetails();
   }, []);
 
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -80,37 +76,6 @@ function EditCake() {
     }));
   };
 
-  const formLogic = (data: FormData): FormErrors => {
-    //this
-    // console.log('inside formlogic');
-    //function that has the logic to give out the right error message to the right label
-    //ERROR FUNC
-    const errors: FormErrors = {};
-
-    //  if(data.name === "already named cake"){
-    //   fill logic
-    //  }
-
-    if (!data.name) {
-      errors.name = "Name: Required";
-    }
-    if (!data.imageUrl) {
-      errors.imageUrl = "URL required";
-    }
-    if (!data.comment) {
-      errors.comment = "Comment required";
-    }
-    if (data.comment.length > 0 && data.comment.length < 5) {
-      errors.comment = "Minimum length is 5 characters";
-    } else if (data.comment.length > 200) {
-      errors.comment = "Maximum length is 200 characters";
-    }
-    if (!data.yumFactor) {
-      errors.yumFactor = "Rating Required";
-    }
-
-    return errors;
-  };
 
   const handleUpdate = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
@@ -155,7 +120,7 @@ function EditCake() {
       <Container maxWidth="sm" sx={{ mt: 4 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <IconButton
-            onClick={handleBack}
+            onClick={() => navigate(-1)}
             sx={{ color: "primary.main", mr: 1 }}
           >
             <ArrowBackIcon />
