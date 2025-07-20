@@ -1,5 +1,6 @@
-export interface FormData{
-      name: string;
+import { FormEvent, ChangeEvent, SyntheticEvent } from "react";
+export interface FormData {
+  name: string;
   imageUrl: string;
   comment: string;
   yumFactor: number | null;
@@ -22,4 +23,19 @@ export interface Cake {
   createdAt: string;
   updatedAt: string;
   __v: number;
+}
+
+export interface CakeFormTypes {
+  formData: FormData;
+  handleSubmit: (event: FormEvent) => Promise<void>;
+  handleInputChange: (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  formErr: FormErrors;
+  handleYumFactorChange: (
+    event: SyntheticEvent,
+    newValue: number | null
+  ) => void;
+  successMsg: boolean;
+  isSubmitting: boolean;
 }
