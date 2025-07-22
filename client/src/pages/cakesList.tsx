@@ -14,9 +14,8 @@ import {
   IconButton,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import { Cake} from '../types/types'
+import { Cake } from "../types/types";
 
 function CakeList() {
   const [getCakesApi, setGetCakesApi] = useState<Cake[]>([]);
@@ -33,7 +32,6 @@ function CakeList() {
   useEffect(() => {
     getCakes();
   }, []);
- 
 
   return (
     <Container>
@@ -56,27 +54,30 @@ function CakeList() {
       <Grid container justifyContent="center" spacing={3}>
         {getCakesApi.map((cake) => (
           <Link to={`/cakes/${cake._id}`}>
-          <Grid key={cake._id} width="300px">
-            <Card elevation={3}>
-              <CardActionArea>
-                <CardMedia component="img" image={cake.imageUrl} height="140" />
-                <CardContent>
-                  <Typography variant="h5">{cake.name}</Typography>
-                  <Typography variant="body2">
-                    {"⭐".repeat(cake.yumFactor)}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions sx={{display:'flex', justifyContent:'flex-end'}}>
-                <IconButton>
-                  <FavoriteIcon />
-                </IconButton>
-                <IconButton>
-                  <DeleteIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
-          </Grid>
+            <Grid key={cake._id} width="300px">
+              <Card elevation={3}>
+                <CardActionArea>
+                  <CardMedia
+                    component="img"
+                    image={cake.imageUrl}
+                    height="140"
+                  />
+                  <CardContent>
+                    <Typography variant="h5">{cake.name}</Typography>
+                    <Typography variant="body2">
+                      {"⭐".repeat(cake.yumFactor)}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+                <CardActions
+                  sx={{ display: "flex", justifyContent: "flex-end" }}
+                >
+                  <IconButton>
+                    <FavoriteIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
           </Link>
         ))}
       </Grid>
