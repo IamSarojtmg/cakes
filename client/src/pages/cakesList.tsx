@@ -26,6 +26,7 @@ function CakeList() {
       setGetCakesApi(fetchedCakes);
     } catch (error) {
       console.error(error);
+      //ADD error
     }
   };
 

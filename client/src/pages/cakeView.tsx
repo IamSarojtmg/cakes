@@ -34,6 +34,7 @@ function IndividualCake() {
       const fetchedCake = response.data;
       setGetCakesApi(fetchedCake);
     } catch (error) {
+      //add error
       console.error(error);
     } finally {
       setLoading(false);

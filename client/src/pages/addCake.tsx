@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import  { useState, FormEvent, ChangeEvent, SyntheticEvent } from "react";
 import { Typography, IconButton, Box, Container } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ function AddCake() {
   const [successMsg, setSuccessMsg] = useState<boolean>(false);
   const [formErr, setFormErr] = useState<FormErrors>({}); //ERROR
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -29,7 +29,7 @@ function AddCake() {
     }));
   };
 
-  const handleYumFactorChange = (event, newValue: number | null) => {
+  const handleYumFactorChange = (e:SyntheticEvent,newValue: number | null) => {
     //this
     // console.log('inside yumfactor');
     setFormData((prevData) => ({
@@ -56,14 +56,15 @@ function AddCake() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:3001/cakes",
         formData
       );
-      console.log(response);
       setSuccessMsg(true);
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error) && error.response){
+        setFormErr({ name: error.response.data.message });
+      }
     } finally {
       console.log("finally");
       setIsSubmitting(false);

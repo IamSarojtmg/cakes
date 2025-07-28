@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState, SyntheticEvent, FormEvent } from "react";
+import { useEffect, useState, SyntheticEvent, FormEvent,ChangeEvent } from "react";
 import { useParams } from "react-router-dom";
 import { FormData, Cake, FormErrors } from "../types/types";
 import { Typography, IconButton, Box, Container } from "@mui/material";
@@ -46,7 +46,7 @@ function EditCake() {
     cakeDetails();
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -81,14 +81,19 @@ function EditCake() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.put(
+      console.log('done 1');
+      
+  await axios.put(
         `http://localhost:3001/cakes/${cakeid}`,
         formData
       );
-      console.log(response);
+      console.log('done');
+      
       setSuccessMsg(true);
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error) && error.response){
+        setFormErr({ name: error.response.data.message });
+      }
     } finally {
       console.log("finally");
       setIsSubmitting(false);
