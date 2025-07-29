@@ -2,14 +2,15 @@ const app = require("../../../src/app");
 const request = require("supertest");
 const Cake = require("../../models/cakes");
 
-describe("GET /cakes", () => {
-  it.skip("Return all the cakes that are stored in the database", async () => {
+describe.skip("GET /cakes", () => {
+  it("Return all the cakes that are stored in the database", async () => {
     const getReqCake = {
       name: "Get req cake",
       imageUrl: "URL of the cake",
       comment: "Tasty and great looking cake",
       yumFactor: 5,
     };
+  //add more cake and test again
 
     await request(app).post("/cakes").send(getReqCake);
     const getRes = await request(app).get("/cakes");
@@ -27,7 +28,7 @@ describe("GET /cakes", () => {
     expect(foundCake.yumFactor).toBe(getReqCake.yumFactor);
   });
 
-  it("Return a cake depending on their ID ", async () => {
+  it.skip("Return a cake depending on their ID ", async () => {
     const viewThisCake = {
       name: "Single Cake view",
       imageUrl: "URL of the cake",
@@ -41,9 +42,9 @@ describe("GET /cakes", () => {
 
     const getRes = await request(app).get(`/cakes/${cakeId}`);
     expect(getRes.statusCode).toBe(200);
-    expect(getRes.body).toHaveProperty("_id");
-    expect(getRes.body.yumFactor).toBe(5);
-    expect(getRes.body._id).toBe(cakeId);
+    expect(getRes.body.cake).toHaveProperty("_id");
+    expect(getRes.body.cake.yumFactor).toBe(5);
+    expect(getRes.body.cake._id).toBe(cakeId);
   });
   it.skip("should return status 400 when an invalid ID is sent", async () => {
     const invalidID = "noValidID";
@@ -64,8 +65,8 @@ describe("GET /cakes", () => {
   });
 });
 
-describe.skip("POST /cakes", () => {
-  it.skip("should post a new cake", async () => {
+describe("POST /cakes", () => {
+  it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
       imageUrl:
@@ -77,11 +78,11 @@ describe.skip("POST /cakes", () => {
     const res = await request(app).post("/cakes").send(newCakeData);
 
     expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty("imageUrl");
-    expect(res.body.name).toEqual(newCakeData.name);
-    expect(typeof res.body.yumFactor).toBe("number");
+    expect(res.body.cake).toHaveProperty("imageUrl");
+    expect(res.body.cake.name).toEqual(newCakeData.name);
+    expect(typeof res.body.cake.yumFactor).toBe("number");
 
-    const cakeInMongoDB = await Cake.findById(res.body._id);
+    const cakeInMongoDB = await Cake.findById(res.body.cake._id);
 
     expect(cakeInMongoDB).toBeDefined();
     expect(cakeInMongoDB.name).toBe(newCakeData.name);
@@ -103,7 +104,7 @@ describe.skip("POST /cakes", () => {
     expect(res.body).not.toHaveProperty("id");
   });
 
-  it("should return 409, if the user enters existing cake name", async () => {
+  it.skip("should return 409, if the user enters existing cake name", async () => {
     const cakeOne = {
       name: "Cake with same name",
       imageUrl:

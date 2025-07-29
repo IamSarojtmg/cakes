@@ -9,7 +9,7 @@ const getAllCakes = async (req: Request, res: Response) => {
         .status(404)
         .json({ message: "No cakes found or cakes list not available" });
     }
-    return res.status(200).json({ cakes });
+    return res.status(200).json({status: 'success', cakes:cakes });
   } catch (error) {}
 };
 
@@ -94,7 +94,7 @@ const postCake = async (req: Request, res: Response) => {
   let arrOfMsg: string[] = [];
   try {
     const newCake = await CakesModel.create(req.body);
-    res.status(201).json(newCake);
+    res.status(201).json({status:'success', cake:newCake});
     return;
   } catch (error) {
     if (error.code === 11000) {
@@ -137,7 +137,7 @@ const deleteCakeById = async (req: Request, res: Response) => {
     }
 
     await CakesModel.findByIdAndDelete(_id);
-    res.status(201).json({ message: "Cake has been deleted" });
+    res.status(201).json({ status: 'success',message: "Cake has been deleted" });
   } catch (error) {
     //WRITE ERROR MESSAGE LATER
   }
