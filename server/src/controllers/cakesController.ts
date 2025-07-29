@@ -5,7 +5,9 @@ const getAllCakes = async (req: Request, res: Response) => {
   try {
     const cakes = await CakesModel.find();
     if (cakes.length === 0) {
-      return res.status(404).json({ message: "No cakes found or cakes list not available" });
+      return res
+        .status(404)
+        .json({ message: "No cakes found or cakes list not available" });
     }
     return res.status(200).json({ cakes });
   } catch (error) {}
@@ -13,19 +15,34 @@ const getAllCakes = async (req: Request, res: Response) => {
 
 const getCakeById = async (req: Request, res: Response) => {
   const { _id } = req.params;
+
   try {
     const cake = await CakesModel.findById(_id);
-
     if (!cake) {
-      res.status(404).json({
+      return res.status(404).json({
         status: "Fail",
         message: "Cake not found with that ID",
       });
     }
 
-    res.status(200).json(cake);
+    return res.status(200).json({status:'success', cake : cake});
   } catch (error) {
-    //WRITE ERROR MESSAGE LATER
+    if (error.name === "CastError") {
+      return res
+        .status(400)
+        .json({
+          status: "fail",
+          message: "Invalid Id. Please provide a valid ID",
+        });
+    } else {
+      return res
+        .status(500)
+        .json({
+          status: "fail",
+          message:
+            "Internal Server Error - Unknown error found. Please try again",
+        });
+    }
   }
 };
 
@@ -75,7 +92,6 @@ const updateCakeById = async (req: Request, res: Response) => {
 
 const postCake = async (req: Request, res: Response) => {
   let arrOfMsg: string[] = [];
-
   try {
     const newCake = await CakesModel.create(req.body);
     res.status(201).json(newCake);

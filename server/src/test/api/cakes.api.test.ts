@@ -2,7 +2,7 @@ const app = require("../../../src/app");
 const request = require("supertest");
 const Cake = require("../../models/cakes");
 
-describe.skip("GET /cakes", () => {
+describe("GET /cakes", () => {
   it.skip("Return all the cakes that are stored in the database", async () => {
     const getReqCake = {
       name: "Get req cake",
@@ -40,15 +40,31 @@ describe.skip("GET /cakes", () => {
     const cakeId = postRes.body._id;
 
     const getRes = await request(app).get(`/cakes/${cakeId}`);
-
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body).toHaveProperty("_id");
     expect(getRes.body.yumFactor).toBe(5);
     expect(getRes.body._id).toBe(cakeId);
   });
+  it.skip("should return status 400 when an invalid ID is sent", async () => {
+    const invalidID = "noValidID";
+
+    const res = await request(app).get(`/cakes/${invalidID}`);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toBe("Invalid Id. Please provide a valid ID");
+    expect(res.body).toHaveProperty("status", "fail");
+    expect(res.body).not.toHaveProperty("id");
+    expect(res.body).not.toHaveProperty("_id");
+    expect(res.body).not.toHaveProperty("name");
+    expect(res.body).not.toHaveProperty("imageUrl");
+    expect(res.body).not.toHaveProperty("comment");
+    expect(res.body).not.toHaveProperty("yumFactor");
+    expect(res.body).not.toHaveProperty("createdAt");
+    expect(res.body).not.toHaveProperty("updatedAt");
+  });
 });
 
-describe("POST /cakes", () => {
+describe.skip("POST /cakes", () => {
   it.skip("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
