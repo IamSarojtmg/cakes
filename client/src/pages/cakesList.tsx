@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Box,
-  Button,
   Card,
   CardContent,
   CardMedia,
@@ -12,21 +10,41 @@ import {
   Typography,
   CardActions,
   IconButton,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import axios from "axios";
 import { Cake } from "../types/types";
 
+import Header from "../components/header";
+
 function CakeList() {
   const [getCakesApi, setGetCakesApi] = useState<Cake[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
   const getCakes = async () => {
     try {
+      setLoading(true);
+      setError(null); 
+
       const response = await axios.get("http://localhost:3001/cakes");
       const fetchedCakes = response.data.cakes;
       setGetCakesApi(fetchedCakes);
-    } catch (error) {
-      console.error(error);
-      //ADD error
+    } catch (err) {
+      console.error(err);
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          if (err.response.status === 404) {
+            setError(err.response.data.message);
+          }
+        } else if (err.request) {
+          setError("Network error, could not connect to the Backend");
+        }
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,24 +52,39 @@ function CakeList() {
     getCakes();
   }, []);
 
+  if (loading) {
+    return (
+      <Container sx={{ mt: 4 }}>
+        <CircularProgress />
+        <Typography>Loading</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    if (error === "No cakes found or cakes list not available") {
+      return (
+        <Container sx={{ mt: 4 }}>
+          <Header />
+          <Alert severity="error">
+            <Typography>{error}</Typography>
+          </Alert>
+        </Container>
+      );
+    } else {
+      return (
+        <Container sx={{ mt: 4 }}>
+          <Alert severity="error">
+            <Typography>{error}</Typography>
+          </Alert>
+        </Container>
+      );
+    }
+  }
+
   return (
     <Container>
-      <Box
-        display="flex"
-        flexDirection="column"
-        gap={2}
-        mb={4}
-        alignItems="center"
-      >
-        <Typography variant="h4">View all cakes</Typography>
-        <Box display="flex" gap={2}>
-          <Link to={"/add-cake"}>
-            <Button variant="contained">Add cake</Button>
-          </Link>
-          <Button variant="outlined">Favourites cakes</Button>
-        </Box>
-      </Box>
-
+      <Header />
       <Grid container justifyContent="center" spacing={3}>
         {getCakesApi.map((cake) => (
           <Link to={`/cakes/${cake._id}`}>

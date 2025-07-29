@@ -2,9 +2,13 @@ const CakesModel = require("../models/cakes");
 import { Request, Response } from "express";
 
 const getAllCakes = async (req: Request, res: Response) => {
-  const cakes = await CakesModel.find();
-  res.status(200).json({ cakes });
-  //WRITE ERROR MESSAGE LATER
+  try {
+    const cakes = await CakesModel.find();
+    if (cakes.length === 0) {
+      return res.status(404).json({ message: "No cakes found or cakes list not available" });
+    }
+    return res.status(200).json({ cakes });
+  } catch (error) {}
 };
 
 const getCakeById = async (req: Request, res: Response) => {
@@ -27,8 +31,8 @@ const getCakeById = async (req: Request, res: Response) => {
 
 const updateCakeById = async (req: Request, res: Response) => {
   const { _id } = req.params;
-  const errArrMsg: string[] =[]
-  try {   
+  const errArrMsg: string[] = [];
+  try {
     const cakeToEdit = await CakesModel.findById(_id);
     if (!cakeToEdit) {
       res.status(404).json({
@@ -46,7 +50,7 @@ const updateCakeById = async (req: Request, res: Response) => {
       errArrMsg.push("Same name detected - Please Enter a different name");
       return res.status(409).json({ status: "fail", message: errArrMsg[0] });
     }
-        if (error.name === "ValidationError") {
+    if (error.name === "ValidationError") {
       const validationErrorDetail = (error as any).errors;
 
       if (validationErrorDetail.imageUrl) {
