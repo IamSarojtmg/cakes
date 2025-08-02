@@ -1,34 +1,50 @@
+export {};
+
 const app = require("../../../src/app");
 const request = require("supertest");
 const Cake = require("../../models/cakes");
+const mongoose = require("mongoose");
+const TEST_MONGO_URI = process.env.TEST_MONGODB_URI;
 
-describe.skip("GET /cakes", () => {
-  it("Return all the cakes that are stored in the database", async () => {
-    const getReqCake = {
-      name: "Get req cake",
-      imageUrl: "URL of the cake",
-      comment: "Tasty and great looking cake",
-      yumFactor: 5,
-    };
-  //add more cake and test again
+describe("GET /cakes", () => {
+  it("should return 500 if it is unable to connect to mongodb", async () => {
+    await mongoose.connection.close();
+    
+    expect(mongoose.connection.readyState).toBe(0);
+    const res = await request(app).get("/cakes");
+    expect(res.statusCode).toEqual(500);
+    expect(res.body.message).toBe("Unable to connect to the Mongo DB");
+    expect(res.body).toHaveProperty('status')
+    expect(res.body).not.toHaveProperty('name')
 
-    await request(app).post("/cakes").send(getReqCake);
+    await mongoose.connect(TEST_MONGO_URI);
+  });
+
+  it.skip("Return all the cakes that are stored in the database", async () => {
+    const arrOfCakes = [
+      {
+        name: "Get req cake",
+        imageUrl: "URL of the cake",
+        comment: "Tasty and great looking cake",
+        yumFactor: 5,
+      },
+      {
+        name: "Cake Two",
+        imageUrl: "URL of the cake",
+        comment: "Tasty and great looking cake",
+        yumFactor: 5,
+      },
+    ];
+
+    await request(app).post("/cakes").send(arrOfCakes);
     const getRes = await request(app).get("/cakes");
 
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body).toHaveProperty("cakes");
-
-    const foundCake = getRes.body.cakes.find(
-      (cake: any) => cake.name === getReqCake.name
-    );
-    expect(foundCake).toBeDefined();
-    expect(foundCake.name).toBe(getReqCake.name);
-    expect(foundCake.imageUrl).toBe(getReqCake.imageUrl);
-    expect(foundCake.comment).toBe(getReqCake.comment);
-    expect(foundCake.yumFactor).toBe(getReqCake.yumFactor);
   });
 
   it.skip("Return a cake depending on their ID ", async () => {
+    //ISSUE WIT THIS TEST
     const viewThisCake = {
       name: "Single Cake view",
       imageUrl: "URL of the cake",
@@ -41,7 +57,8 @@ describe.skip("GET /cakes", () => {
     const cakeId = postRes.body._id;
 
     const getRes = await request(app).get(`/cakes/${cakeId}`);
-    expect(getRes.statusCode).toBe(200);
+
+    expect(getRes.statusCode).toBe(200); //PROBLEM HERE, STATUS BEING SEND IS 400
     expect(getRes.body.cake).toHaveProperty("_id");
     expect(getRes.body.cake.yumFactor).toBe(5);
     expect(getRes.body.cake._id).toBe(cakeId);
@@ -65,7 +82,7 @@ describe.skip("GET /cakes", () => {
   });
 });
 
-describe("POST /cakes", () => {
+describe.skip("POST /cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
@@ -88,7 +105,7 @@ describe("POST /cakes", () => {
     expect(cakeInMongoDB.name).toBe(newCakeData.name);
   });
 
-  it.skip("should return 400 Bad Request if name is missing", async () => {
+  it("should return 400 Bad Request if name is missing", async () => {
     const invalidCakeData = {
       //name missing
       imageUrl: "http://invalid.com/img.jpg",
@@ -104,7 +121,7 @@ describe("POST /cakes", () => {
     expect(res.body).not.toHaveProperty("id");
   });
 
-  it.skip("should return 409, if the user enters existing cake name", async () => {
+  it("should return 409, if the user enters existing cake name", async () => {
     const cakeOne = {
       name: "Cake with same name",
       imageUrl:

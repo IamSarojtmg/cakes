@@ -9,8 +9,22 @@ const getAllCakes = async (req: Request, res: Response) => {
         .status(404)
         .json({ message: "No cakes found or cakes list not available" });
     }
-    return res.status(200).json({status: 'success', cakes:cakes });
-  } catch (error) {}
+    return res.status(200).json({ status: "success", cakes: cakes });
+  } catch (error:unknown) {
+    if(error instanceof Error){
+
+      if (error.name === "MongoNotConnectedError") {
+        return res
+        .status(500)
+        .json({ status: "fail", message: "Unable to connect to the Mongo DB" });
+      } else {
+        return res
+        .status(500)
+        .json({ status: "fail", message: "Internal Server Error - Unknown error found. Please try again" });
+      }
+    }
+    return res.status(500).json({status: 'fail', message:'Something went wrong, error could not be identified'})
+  }
 };
 
 const getCakeById = async (req: Request, res: Response) => {
@@ -25,23 +39,19 @@ const getCakeById = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).json({status:'success', cake : cake});
+    return res.status(200).json({ status: "success", cake: cake });
   } catch (error) {
     if (error.name === "CastError") {
-      return res
-        .status(400)
-        .json({
-          status: "fail",
-          message: "Invalid Id. Please provide a valid ID",
-        });
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid Id. Please provide a valid ID",
+      });
     } else {
-      return res
-        .status(500)
-        .json({
-          status: "fail",
-          message:
-            "Internal Server Error - Unknown error found. Please try again",
-        });
+      return res.status(500).json({
+        status: "fail",
+        message:
+          "Internal Server Error - Unknown error found. Please try again",
+      });
     }
   }
 };
@@ -94,7 +104,7 @@ const postCake = async (req: Request, res: Response) => {
   let arrOfMsg: string[] = [];
   try {
     const newCake = await CakesModel.create(req.body);
-    res.status(201).json({status:'success', cake:newCake});
+    res.status(201).json({ status: "success", cake: newCake });
     return;
   } catch (error) {
     if (error.code === 11000) {
@@ -137,7 +147,9 @@ const deleteCakeById = async (req: Request, res: Response) => {
     }
 
     await CakesModel.findByIdAndDelete(_id);
-    res.status(201).json({ status: 'success',message: "Cake has been deleted" });
+    res
+      .status(201)
+      .json({ status: "success", message: "Cake has been deleted" });
   } catch (error) {
     //WRITE ERROR MESSAGE LATER
   }
