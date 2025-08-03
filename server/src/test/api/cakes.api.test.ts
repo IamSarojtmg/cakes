@@ -6,7 +6,7 @@ const Cake = require("../../models/cakes");
 const mongoose = require("mongoose");
 const TEST_MONGO_URI = process.env.TEST_MONGODB_URI;
 
-describe.skip("GET /cakes", () => {
+describe("GET /cakes", () => {
   it("should return 500 if it is unable to connect to mongodb", async () => {
     await mongoose.connection.close();
 
@@ -20,7 +20,7 @@ describe.skip("GET /cakes", () => {
     await mongoose.connect(TEST_MONGO_URI);
   });
 
-  it.skip("Return all the cakes that are stored in the database", async () => {
+  it("Return all the cakes that are stored in the database", async () => {
     const arrOfCakes = [
       {
         name: "Get req cake",
@@ -43,8 +43,7 @@ describe.skip("GET /cakes", () => {
     expect(getRes.body).toHaveProperty("cakes");
   });
 
-  it.skip("Return a cake depending on their ID ", async () => {
-    //ISSUE WIT THIS TEST
+  it("Return a cake depending on their ID ", async () => {
     const viewThisCake = {
       name: "Single Cake view",
       imageUrl: "URL of the cake",
@@ -54,16 +53,17 @@ describe.skip("GET /cakes", () => {
 
     const postRes = await request(app).post("/cakes").send(viewThisCake);
     expect(postRes.statusCode).toBe(201);
-    const cakeId = postRes.body._id;
+    const cakeId = postRes.body.cake._id;
 
     const getRes = await request(app).get(`/cakes/${cakeId}`);
 
-    expect(getRes.statusCode).toBe(200); //PROBLEM HERE, STATUS BEING SEND IS 400
+    expect(getRes.statusCode).toBe(200);
+
     expect(getRes.body.cake).toHaveProperty("_id");
     expect(getRes.body.cake.yumFactor).toBe(5);
     expect(getRes.body.cake._id).toBe(cakeId);
   });
-  it.skip("should return status 400 when an invalid ID is sent", async () => {
+  it("should return status 400 when an invalid ID is sent", async () => {
     const invalidID = "noValidID";
 
     const res = await request(app).get(`/cakes/${invalidID}`);
@@ -82,7 +82,7 @@ describe.skip("GET /cakes", () => {
   });
 });
 
-describe.skip("POST /cakes", () => {
+describe("POST /cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
@@ -139,8 +139,8 @@ describe.skip("POST /cakes", () => {
 
     const res = await request(app).post("/cakes").send(cakeOne);
     expect(res.statusCode).toEqual(201);
-    expect(res.body.name).toEqual(cakeOne.name);
-    expect(res.body).toHaveProperty("_id");
+    expect(res.body.cake.name).toEqual(cakeOne.name);
+    expect(res.body.cake).toHaveProperty("_id");
 
     const resTwo = await request(app).post("/cakes").send(cakeTwo);
     expect(resTwo.statusCode).toEqual(409);
@@ -156,10 +156,21 @@ describe.skip("POST /cakes", () => {
     expect(cakeinTestDB).toHaveLength(1);
   });
 
-  //POST REQUEST IF USER DOES NOT ENTER NAME + IMAGEuRL, OR INVALID COMMENT LENGTH ...
+  it("should return the all the error if no data is added in the form", async () => {
+    const noDataOfCake = { name: "", imageUrl: "", comment: "", yumFactor: "" };
+
+    const res = await request(app).post("/cakes").send(noDataOfCake);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).not.toHaveProperty("cake");
+
+    expect(res.body).toHaveProperty("status", "fail");
+    expect(res.body.message).toBe(
+      "Please provide the URL of the image of the cake, and Please enter cake name, and Please provide comment for the cake, and Please provide us the rating of the cake"
+    );
+  });
 });
 
-describe("Error message for any delete related issues", () => {
+describe("DELETE /Cakes", () => {
   it("Should delete the cake and return 204", async () => {
     const cakeToDelete = {
       name: "Cake to be deleted",
@@ -180,7 +191,7 @@ describe("Error message for any delete related issues", () => {
     expect(resDelete.body).not.toHaveProperty("cake");
   });
 
-  it("should return Invalid Id. Please provide a valid ID", async () => {
+  it("should return Invalid Id. Please provide a valid ID if the cake ID is invalid", async () => {
     const invalidId = "invalidID";
     const res = await request(app).delete(`/cakes/${invalidId}`);
     expect(res.statusCode).toBe(400);

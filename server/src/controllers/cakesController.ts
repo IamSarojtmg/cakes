@@ -69,7 +69,6 @@ const getCakeById = async (req: Request, res: Response) => {
 
 const updateCakeById = async (req: Request, res: Response) => {
   const { _id } = req.params;
-  const errArrMsg: string[] = [];
   try {
     const cakeToEdit = await CakesModel.findById(_id);
     if (!cakeToEdit) {
@@ -78,16 +77,16 @@ const updateCakeById = async (req: Request, res: Response) => {
         message: "Cake not found with that ID",
       });
     }
-
+    
     const updateCake = await CakesModel.findByIdAndUpdate(_id, req.body, {
       new: true,
     });
-    res.status(200).json(updateCake);
+    res.status(200).json({status: 'success', cake: updateCake});
   } catch (error: unknown) {
+    const errArrMsg: string[] = [];
     if (error instanceof Error) {
       if ((error as any).code === 11000) {
-        errArrMsg.push("Same name detected - Please Enter a different name");
-        return res.status(409).json({ status: "fail", message: errArrMsg[0] });
+        return res.status(409).json({ status: "fail", message: "Same name detected - Please Enter a different name" });
       }
       if (error.name === "ValidationError") {
         const validationErrorDetail = (error as any).errors;
@@ -120,36 +119,35 @@ const updateCakeById = async (req: Request, res: Response) => {
 };
 
 const postCake = async (req: Request, res: Response) => {
-  let arrOfMsg: string[] = [];
   try {
     const newCake = await CakesModel.create(req.body);
-    res.status(201).json({ status: "success", cake: newCake });
-    return;
+    return res.status(201).json({ status: "success", cake: newCake });
+    
   } catch (error: unknown) {
+    let errArrMsg: string[] = [];
     if (error instanceof Error) {
       if ((error as any).code === 11000) {
-        arrOfMsg.push("Same name detected - Please Enter a different name");
-        return res.status(409).json({ status: "fail", message: arrOfMsg[0] });
+        return res.status(409).json({ status: "fail", message: "Same name detected - Please Enter a different name" });
       }
 
       if (error.name === "ValidationError") {
         const validationErrorDetail = (error as any).errors;
 
         if (validationErrorDetail.imageUrl) {
-          arrOfMsg.push(validationErrorDetail.imageUrl.message);
+          errArrMsg.push(validationErrorDetail.imageUrl.message);
         }
         if (validationErrorDetail.name) {
-          arrOfMsg.push(validationErrorDetail.name.message);
+          errArrMsg.push(validationErrorDetail.name.message);
         }
         if (validationErrorDetail.comment) {
-          arrOfMsg.push(validationErrorDetail.comment.message);
+          errArrMsg.push(validationErrorDetail.comment.message);
         }
         if (validationErrorDetail.yumFactor) {
-          arrOfMsg.push(validationErrorDetail.yumFactor.message);
+          errArrMsg.push(validationErrorDetail.yumFactor.message);
         }
 
         const errMsgToReturn =
-          arrOfMsg.length > 0 ? arrOfMsg.join(", and ") : "no errors";
+          errArrMsg.length > 0 ? errArrMsg.join(", and ") : "no errors";
         return res
           .status(400)
           .json({ status: "fail", message: errMsgToReturn });
