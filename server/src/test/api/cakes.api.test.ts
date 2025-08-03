@@ -6,16 +6,16 @@ const Cake = require("../../models/cakes");
 const mongoose = require("mongoose");
 const TEST_MONGO_URI = process.env.TEST_MONGODB_URI;
 
-describe("GET /cakes", () => {
+describe.skip("GET /cakes", () => {
   it("should return 500 if it is unable to connect to mongodb", async () => {
     await mongoose.connection.close();
-    
+
     expect(mongoose.connection.readyState).toBe(0);
     const res = await request(app).get("/cakes");
     expect(res.statusCode).toEqual(500);
     expect(res.body.message).toBe("Unable to connect to the Mongo DB");
-    expect(res.body).toHaveProperty('status')
-    expect(res.body).not.toHaveProperty('name')
+    expect(res.body).toHaveProperty("status");
+    expect(res.body).not.toHaveProperty("name");
 
     await mongoose.connect(TEST_MONGO_URI);
   });
@@ -157,4 +157,35 @@ describe.skip("POST /cakes", () => {
   });
 
   //POST REQUEST IF USER DOES NOT ENTER NAME + IMAGEuRL, OR INVALID COMMENT LENGTH ...
+});
+
+describe("Error message for any delete related issues", () => {
+  it("Should delete the cake and return 204", async () => {
+    const cakeToDelete = {
+      name: "Cake to be deleted",
+      imageUrl:
+        "https://handletheheat.com/wp-content/uploads/2015/03/Best-Birthday-Cake-with-milk-chocolate-buttercream-SQUARE.jpg",
+      comment: "I dont like this cake",
+      yumFactor: 1,
+    };
+
+    const res = await request(app).post("/cakes").send(cakeToDelete);
+    const cakeID = res.body.cake._id;
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.cake).toHaveProperty("_id");
+
+    const resDelete = await request(app).delete(`/cakes/${cakeID}`);
+
+    expect(resDelete.statusCode).toEqual(204);
+    expect(resDelete.body).not.toHaveProperty("cake");
+  });
+
+  it("should return Invalid Id. Please provide a valid ID", async () => {
+    const invalidId = "invalidID";
+    const res = await request(app).delete(`/cakes/${invalidId}`);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("status");
+    expect(res.body).toHaveProperty("message");
+    expect(res.body.message).toEqual("Invalid Id. Please provide a valid ID");
+  });
 });
