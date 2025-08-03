@@ -1,30 +1,46 @@
+export {};
+
 const app = require("../../../src/app");
 const request = require("supertest");
 const Cake = require("../../models/cakes");
+const mongoose = require("mongoose");
+const TEST_MONGO_URI = process.env.TEST_MONGODB_URI;
 
 describe("GET /cakes", () => {
-  it.skip("Return all the cakes that are stored in the database", async () => {
-    const getReqCake = {
-      name: "Get req cake",
-      imageUrl: "URL of the cake",
-      comment: "Tasty and great looking cake",
-      yumFactor: 5,
-    };
+  it("should return 500 if it is unable to connect to mongodb", async () => {
+    await mongoose.connection.close();
 
-    await request(app).post("/cakes").send(getReqCake);
+    expect(mongoose.connection.readyState).toBe(0);
+    const res = await request(app).get("/cakes");
+    expect(res.statusCode).toEqual(500);
+    expect(res.body.message).toBe("Unable to connect to the Mongo DB");
+    expect(res.body).toHaveProperty("status");
+    expect(res.body).not.toHaveProperty("name");
+
+    await mongoose.connect(TEST_MONGO_URI);
+  });
+
+  it("Return all the cakes that are stored in the database", async () => {
+    const arrOfCakes = [
+      {
+        name: "Get req cake",
+        imageUrl: "URL of the cake",
+        comment: "Tasty and great looking cake",
+        yumFactor: 5,
+      },
+      {
+        name: "Cake Two",
+        imageUrl: "URL of the cake",
+        comment: "Tasty and great looking cake",
+        yumFactor: 5,
+      },
+    ];
+
+    await request(app).post("/cakes").send(arrOfCakes);
     const getRes = await request(app).get("/cakes");
 
     expect(getRes.statusCode).toBe(200);
     expect(getRes.body).toHaveProperty("cakes");
-
-    const foundCake = getRes.body.cakes.find(
-      (cake: any) => cake.name === getReqCake.name
-    );
-    expect(foundCake).toBeDefined();
-    expect(foundCake.name).toBe(getReqCake.name);
-    expect(foundCake.imageUrl).toBe(getReqCake.imageUrl);
-    expect(foundCake.comment).toBe(getReqCake.comment);
-    expect(foundCake.yumFactor).toBe(getReqCake.yumFactor);
   });
 
   it("Return a cake depending on their ID ", async () => {
@@ -37,18 +53,36 @@ describe("GET /cakes", () => {
 
     const postRes = await request(app).post("/cakes").send(viewThisCake);
     expect(postRes.statusCode).toBe(201);
-    const cakeId = postRes.body._id;
+    const cakeId = postRes.body.cake._id;
 
     const getRes = await request(app).get(`/cakes/${cakeId}`);
 
     expect(getRes.statusCode).toBe(200);
-    expect(getRes.body).toHaveProperty("_id");
-    expect(getRes.body.yumFactor).toBe(5);
-    expect(getRes.body._id).toBe(cakeId);
+
+    expect(getRes.body.cake).toHaveProperty("_id");
+    expect(getRes.body.cake.yumFactor).toBe(5);
+    expect(getRes.body.cake._id).toBe(cakeId);
+  });
+  it("should return status 400 when an invalid ID is sent", async () => {
+    const invalidID = "noValidID";
+
+    const res = await request(app).get(`/cakes/${invalidID}`);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.message).toBe("Invalid Id. Please provide a valid ID");
+    expect(res.body).toHaveProperty("status", "fail");
+    expect(res.body).not.toHaveProperty("id");
+    expect(res.body).not.toHaveProperty("_id");
+    expect(res.body).not.toHaveProperty("name");
+    expect(res.body).not.toHaveProperty("imageUrl");
+    expect(res.body).not.toHaveProperty("comment");
+    expect(res.body).not.toHaveProperty("yumFactor");
+    expect(res.body).not.toHaveProperty("createdAt");
+    expect(res.body).not.toHaveProperty("updatedAt");
   });
 });
 
-describe.skip("POST /cakes", () => {
+describe("POST /cakes", () => {
   it("should post a new cake", async () => {
     const newCakeData = {
       name: "cake from jest",
@@ -61,11 +95,11 @@ describe.skip("POST /cakes", () => {
     const res = await request(app).post("/cakes").send(newCakeData);
 
     expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty("imageUrl");
-    expect(res.body.name).toEqual(newCakeData.name);
-    expect(typeof res.body.yumFactor).toBe("number");
+    expect(res.body.cake).toHaveProperty("imageUrl");
+    expect(res.body.cake.name).toEqual(newCakeData.name);
+    expect(typeof res.body.cake.yumFactor).toBe("number");
 
-    const cakeInMongoDB = await Cake.findById(res.body._id);
+    const cakeInMongoDB = await Cake.findById(res.body.cake._id);
 
     expect(cakeInMongoDB).toBeDefined();
     expect(cakeInMongoDB.name).toBe(newCakeData.name);
@@ -82,8 +116,87 @@ describe.skip("POST /cakes", () => {
     const res = await request(app).post("/cakes").send(invalidCakeData);
 
     expect(res.statusCode).toEqual(400);
-    expect(res.body).toEqual("Please enter cake name"); // Expect an error message
+    expect(res.body.status).toEqual("fail");
+    expect(res.body.message).toBe("Please enter cake name");
+    expect(res.body).not.toHaveProperty("id");
   });
 
-  //POST REQUEST IF USER DOES NOT ENTER NAME + IMAGEuRL, OR INVALID COMMENT LENGTH ...
+  it("should return 409, if the user enters existing cake name", async () => {
+    const cakeOne = {
+      name: "Cake with same name",
+      imageUrl:
+        "https://www.flavourtownbakery.co.uk/cdn/shop/files/Galaxy-Cake-Flavourtown-Bakery.jpg?v=1699965789",
+      comment: "decent cake",
+      yumFactor: 3,
+    };
+    const cakeTwo = {
+      name: "Cake with same name",
+      imageUrl:
+        "https://handletheheat.com/wp-content/uploads/2015/03/Best-Birthday-Cake-with-milk-chocolate-buttercream-SQUARE.jpg",
+      comment: "I dont like this cake",
+      yumFactor: 1,
+    };
+
+    const res = await request(app).post("/cakes").send(cakeOne);
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.cake.name).toEqual(cakeOne.name);
+    expect(res.body.cake).toHaveProperty("_id");
+
+    const resTwo = await request(app).post("/cakes").send(cakeTwo);
+    expect(resTwo.statusCode).toEqual(409);
+    expect(resTwo.body.message).toEqual(
+      "Same name detected - Please Enter a different name"
+    );
+    expect(resTwo.body).toHaveProperty("status", "fail");
+    expect(resTwo.body).toHaveProperty("message");
+    expect(resTwo.body).not.toHaveProperty("_id");
+
+    const cakeinTestDB = await Cake.find({ name: cakeTwo.name });
+    expect(cakeinTestDB).toBeDefined();
+    expect(cakeinTestDB).toHaveLength(1);
+  });
+
+  it("should return the all the error if no data is added in the form", async () => {
+    const noDataOfCake = { name: "", imageUrl: "", comment: "", yumFactor: "" };
+
+    const res = await request(app).post("/cakes").send(noDataOfCake);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).not.toHaveProperty("cake");
+
+    expect(res.body).toHaveProperty("status", "fail");
+    expect(res.body.message).toBe(
+      "Please provide the URL of the image of the cake, and Please enter cake name, and Please provide comment for the cake, and Please provide us the rating of the cake"
+    );
+  });
+});
+
+describe("DELETE /Cakes", () => {
+  it("Should delete the cake and return 204", async () => {
+    const cakeToDelete = {
+      name: "Cake to be deleted",
+      imageUrl:
+        "https://handletheheat.com/wp-content/uploads/2015/03/Best-Birthday-Cake-with-milk-chocolate-buttercream-SQUARE.jpg",
+      comment: "I dont like this cake",
+      yumFactor: 1,
+    };
+
+    const res = await request(app).post("/cakes").send(cakeToDelete);
+    const cakeID = res.body.cake._id;
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.cake).toHaveProperty("_id");
+
+    const resDelete = await request(app).delete(`/cakes/${cakeID}`);
+
+    expect(resDelete.statusCode).toEqual(204);
+    expect(resDelete.body).not.toHaveProperty("cake");
+  });
+
+  it("should return Invalid Id. Please provide a valid ID if the cake ID is invalid", async () => {
+    const invalidId = "invalidID";
+    const res = await request(app).delete(`/cakes/${invalidId}`);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("status");
+    expect(res.body).toHaveProperty("message");
+    expect(res.body.message).toEqual("Invalid Id. Please provide a valid ID");
+  });
 });

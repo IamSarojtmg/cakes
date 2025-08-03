@@ -27,14 +27,23 @@ function IndividualCake() {
   const { cakeid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [getCakeApi, setGetCakesApi] = useState<Cake | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const getCake = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await axios.get(`http://localhost:3001/cakes/${cakeid}`);
-      const fetchedCake = response.data;
+      const fetchedCake = response.data.cake;
       setGetCakesApi(fetchedCake);
-    } catch (error) {
+    } catch (error: unknown) {
+      //Expand this LATER
       console.error(error);
+      if (axios.isAxiosError(error)) {
+        if (error.message === "Network Error") {
+          setError("Network error, could not connect to the Backend");
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -85,6 +94,17 @@ function IndividualCake() {
       </Container>
     );
   }
+  if (error) {
+    if (error === "Network error, could not connect to the Backend") {
+      return (
+        <Container sx={{ mt: 4 }}>
+          <Alert severity="error">
+            <Typography>{error}</Typography>
+          </Alert>
+        </Container>
+      );
+    }
+  }
   if (getCakeApi) {
     return (
       <Container maxWidth="sm">
@@ -125,7 +145,6 @@ function IndividualCake() {
                 display: "flex",
                 flexDirection: "column",
                 p: 3,
-                border: "solid red",
               }}
             >
               <Typography sx={{ mb: 1 }} variant="body1">

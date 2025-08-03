@@ -1,15 +1,18 @@
 import { FormData, FormErrors } from "../types/types";
 
 export const formLogic = (data: FormData): FormErrors => {
+// export const formLogic = (data) => {
   //this
   // console.log('inside formlogic');
   //function that has the logic to give out the right error message to the right label
   //ERROR FUNC
-  const errors: FormErrors = {};
+  const errors:FormErrors = {};
 
   //  if(data.name === "already named cake"){
   //   fill logic
   //  }
+  // console.log(data.name);
+  
 
   if (!data.name) {
     errors.name = "Name: Required";
