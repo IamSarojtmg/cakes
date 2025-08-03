@@ -26,7 +26,7 @@ function EditCake() {
   const cakeDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:3001/cakes/${cakeid}`);
-      const individualCake: Cake = response.data;
+      const individualCake: Cake = response.data.cake;
       setGetCake(individualCake);
 
       setFormData({
