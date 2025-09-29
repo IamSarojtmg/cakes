@@ -58,6 +58,8 @@ function EditCake() {
     e: SyntheticEvent,
     newValue: number | null
   ) => {
+    console.log(e.target);//only making sure e is delcared for CICD
+    
     setFormData((prevData) => ({
       ...prevData,
       yumFactor: newValue,

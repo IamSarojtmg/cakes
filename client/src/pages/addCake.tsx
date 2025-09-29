@@ -31,7 +31,7 @@ function AddCake() {
 
   const handleYumFactorChange = (e:SyntheticEvent,newValue: number | null) => {
     //this
-    // console.log('inside yumfactor');
+    console.log(e.target); //only making sure the e is read
     setFormData((prevData) => ({
       ...prevData,
       yumFactor: newValue,
