@@ -39,3 +39,4 @@ export interface CakeFormTypes {
   successMsg: boolean;
   isSubmitting: boolean;
 }
+
