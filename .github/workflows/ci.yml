@@ -1,10 +1,14 @@
-name: Deploy Vite App
+name: Deploy Client (Vite) to GitHub Pages
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+defaults:
+  run:
+    working-directory: client  # 👈 all commands run inside /client
 
 jobs:
   build:
@@ -19,6 +23,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         run: npm install
@@ -29,7 +34,7 @@ jobs:
       - name: Upload production-ready build
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: client/dist   # 👈 Vite builds here
 
   deploy:
     runs-on: ubuntu-latest
